@@ -31,9 +31,16 @@ for panel in panelLeft:
             Allnames.append("Name not found")
     else:
         print("No matching div found in this panel.")
+    innerLink = panel.find('a', href=True)
+    if innerLink:
+        innerURL = innerLink['href']
+        Links.append(innerURL)
+    else:
+        Links.append("No URL found")
 
 print("Scrapped names are: ", Allnames)
 print("size after left panel:", len(Allnames))
+print("links of left panel", Links)
 
 panelMid = main_parsys.findAll('div', class_='col-sm-4 panel-builder-33-col panel-builder-mid')
 
@@ -46,13 +53,46 @@ for midPanel in panelMid:
             Allnames.append(name)
         else:
             Allnames.append("Name not found")
+
+        innerLink = divName.find('a', href=True)
+        if innerLink:
+            innerURL = innerLink['href']
+            Links.append(innerURL)
+        else:
+            Links.append("No URL found")
     else:
         print("No matching div found in this panel.")
 
 print("after midPanel : ", Allnames)
 print("size after mid panel" , len(Allnames))
+print("links of mid panel : ", Links)
+
+panelRight = main_parsys.findAll('div', class_='col-sm-4 panel-builder-33-col panel-builder-right')
+
+for rightPanel in panelRight:
+    divName = rightPanel.find('div', class_="text col-md-8")
+    if divName:
+        innerDivName = divName.find('p').find('a')
+        if innerDivName:
+            name = innerDivName.get_text(strip=True)
+            Allnames.append(name)
+        else:
+            Allnames.append("Name not found")
+
+        innerLink = divName.find('a', href=True)
+        if innerLink:
+            innerURL = innerLink['href']
+            Links.append(innerURL)
+        else:
+            Links.append("No URL found")
+    else:
+        print("No matching div found in this panel.")
 
 
+
+print("size after right panel", len(Allnames))
+print("All Panel : ", Allnames)
+print("Links ALL : ", Links)
 
 
 
