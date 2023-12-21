@@ -33,6 +33,41 @@ for panel in panelLeft:
         print("No matching div found in this panel.")
 
 print("Scrapped names are: ", Allnames)
+print("size after left panel:", len(Allnames))
+
+panelMid = main_parsys.findAll('div', class_='col-sm-4 panel-builder-33-col panel-builder-mid')
+
+for midPanel in panelMid:
+    divName = midPanel.find('div', class_="text col-md-8")
+    if divName:
+        innerDivName = divName.find('p').find('a')
+        if innerDivName:
+            name = innerDivName.get_text(strip=True)
+            Allnames.append(name)
+        else:
+            Allnames.append("Name not found")
+    else:
+        print("No matching div found in this panel.")
+
+print("after midPanel : ", Allnames)
+print("size after mid panel" , len(Allnames))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # image = panelLeft.find('div', class_ = 'image' )
 # img_tag = image.find('img')
