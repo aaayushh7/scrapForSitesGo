@@ -83,8 +83,21 @@ for rightPanel in panelRight:
         if innerLink:
             innerURL = innerLink['href']
             Links.append(innerURL)
+            innerResponse = requests.get(innerURL)
+            innerSoup = BeautifulSoup(innerResponse.text, 'html.parser')
+            contact = innerSoup.find('div', 'contact-info primary')
+            if contact:
+                contact2 = contact.find('a')
+                if contact2:
+                    email = contact2.get_text(strip=True)
+                # print(email)
+                    Allmails.append(email)
+                else:
+                    Allmails.append("No email found in Contact")
+            else:
+                Allmails.append("No Contact Info")
         else:
-            Links.append("No URL found")
+            Links.append("No profile URL found")
     else:
         print("No matching div found in this panel.")
 
@@ -93,6 +106,7 @@ for rightPanel in panelRight:
 print("size after right panel", len(Allnames))
 print("All Panel : ", Allnames)
 print("Links ALL : ", Links)
+print("Emails of right panel : ", Allmails)
 
 
 
