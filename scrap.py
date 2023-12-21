@@ -139,8 +139,11 @@ for rightPanel in panelRight:
 print("All Panel : ", Allnames)
 print("All links : ", Links)
 print("All emails : ", Allmails)
-data = list(zip(Allnames, Allmails, Links))
+
 sheet.clear()
+headers = ["Faculty Names", "Email", "Current Website"]
+sheet.append_row(headers)
+data = list(zip(Allnames, Allmails, Links))
 sheet.append_rows(data, value_input_option='USER_ENTERED')
 
 
