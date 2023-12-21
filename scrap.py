@@ -1,6 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+scope = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
+credentials = ServiceAccountCredentials.from_json_keyfile_name("/Users/ayushtiwari/PycharmProjects/sitesGo/secretkey.json", scope)
+client = gspread.authorize(credentials)
+spreadsheet = client.open('SitesGo')
+sheet = spreadsheet.sheet1
+
 
 url = "https://med.stanford.edu/neurology/faculty/overview.html?tab=proxy"
 
@@ -35,12 +46,22 @@ for panel in panelLeft:
     if innerLink:
         innerURL = innerLink['href']
         Links.append(innerURL)
+        innerResponse = requests.get(innerURL)
+        innerSoup = BeautifulSoup(innerResponse.text, 'html.parser')
+        contact = innerSoup.find('div', 'contact-info primary')
+        if contact:
+            contact2 = contact.find('a')
+            if contact2:
+                email = contact2.get_text(strip=True)
+                # print(email)
+                Allmails.append(email)
+            else:
+                Allmails.append("No email found in Contact")
+        else:
+            Allmails.append("No Contact Info")
     else:
-        Links.append("No URL found")
+        Links.append("No profile URL found")
 
-print("Scrapped names are: ", Allnames)
-print("size after left panel:", len(Allnames))
-print("links of left panel", Links)
 
 panelMid = main_parsys.findAll('div', class_='col-sm-4 panel-builder-33-col panel-builder-mid')
 
@@ -58,14 +79,25 @@ for midPanel in panelMid:
         if innerLink:
             innerURL = innerLink['href']
             Links.append(innerURL)
+            innerResponse = requests.get(innerURL)
+            innerSoup = BeautifulSoup(innerResponse.text, 'html.parser')
+            contact = innerSoup.find('div', 'contact-info primary')
+            if contact:
+                contact2 = contact.find('a')
+                if contact2:
+                    email = contact2.get_text(strip=True)
+                    # print(email)
+                    Allmails.append(email)
+                else:
+                    Allmails.append("No email found in Contact")
+            else:
+                Allmails.append("No Contact Info")
         else:
-            Links.append("No URL found")
+            Links.append("No profile URL found")
     else:
         print("No matching div found in this panel.")
 
-print("after midPanel : ", Allnames)
-print("size after mid panel" , len(Allnames))
-print("links of mid panel : ", Links)
+
 
 panelRight = main_parsys.findAll('div', class_='col-sm-4 panel-builder-33-col panel-builder-right')
 
@@ -103,10 +135,14 @@ for rightPanel in panelRight:
 
 
 
-print("size after right panel", len(Allnames))
+
 print("All Panel : ", Allnames)
-print("Links ALL : ", Links)
-print("Emails of right panel : ", Allmails)
+print("All links : ", Links)
+print("All emails : ", Allmails)
+data = list(zip(Allnames, Allmails, Links))
+sheet.clear()
+sheet.append_rows(data, value_input_option='USER_ENTERED')
+
 
 
 
