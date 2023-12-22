@@ -29,7 +29,8 @@ main_parsys = soup.find('div', class_ = "main parsys")
 Allnames =[]
 Allmails=[]
 Links=[]
-#   LEFT PANEL
+
+#   SCRAPING FUNCTION USING PREVIOUS LINES (110-193)
 
 def scrape_panel(panel):
     for panel_item in panel:
@@ -88,6 +89,8 @@ sheet.append_row(headers)
 data = list(zip(Allnames, Allmails, Links))
 sheet.append_rows(data, value_input_option='USER_ENTERED')
 
+#   FORMATING CELLS
+
 # cell_range = sheet.range(f'A1:C{len(Allnames) + 1}')  # Including the header row
 #
 # # Apply formatting to cells
@@ -104,23 +107,7 @@ sheet.append_rows(data, value_input_option='USER_ENTERED')
 # Get the entire range of cells
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                    ## PREVIOUS ROUGH LOGIC TO GET THE WORK DONE
 
 # image = panelLeft.find('div', class_ = 'image' )
 # img_tag = image.find('img')
