@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread_formatting import *
+import re
 
 
 scope = [
@@ -28,7 +29,8 @@ main_parsys = soup.find('div', class_ = "main parsys")
 # imageURL=[]
 Allnames =[]
 Allmails=[]
-Links=[]
+# Links=[]
+Lab=[]
 
 #   SCRAPING FUNCTION USING PREVIOUS LINES (110-193)
 
@@ -36,19 +38,24 @@ def scrape_panel(panel):
     for panel_item in panel:
         div_name = panel_item.find('div', class_='text col-md-8')
         if div_name:
-            inner_div_name = div_name.find('p').find('a')
-            name = inner_div_name.get_text(strip=True) if inner_div_name else "Name not found"
-            Allnames.append(name)
+            p_tag = div_name.find('p')
+            if p_tag:
+                inner_div_name = p_tag.find('a') or p_tag
+                name = inner_div_name.get_text(strip=True)
+                Allnames.append(name)
+            else:
+                continue
 
             inner_link = panel_item.find('a', href=True)
             if inner_link:
                 inner_url = inner_link['href']
-                Links.append(inner_url)
+                # Links.append(inner_url)
 
                 try:
                     inner_response = requests.get(inner_url)
                     inner_soup = BeautifulSoup(inner_response.text, 'html.parser')
                     contact = inner_soup.find('div', 'contact-info primary')
+                    internet_links = inner_soup.find_all('li', class_='internet-link')
 
                     if contact:
                         contact_email_tag = contact.find('a')
@@ -59,11 +66,27 @@ def scrape_panel(panel):
                             Allmails.append("No Email in Contact Info")
                     else:
                         Allmails.append("No Contact Info")
+
+                    lab_site_found = False
+                    if internet_links:
+                        for link_item in internet_links:
+                            link_text = link_item.find('a').get_text(strip=True)
+                            if re.search(r'\bLab Site\b', link_text):
+                                lab_site_link = link_item.find('a')['href']
+                                Lab.append(lab_site_link)
+                                lab_site_found = True
+                                break
+
+                        if not lab_site_found:
+                            Lab.append("No Lab Link Found")
+                    else:
+                        Lab.append("No Links Available")
                 except Exception as e:
                     print(f"Error scraping inner page: {e}")
             else:
-                Links.append("N/A")
+                # Links.append("N/A")
                 Allmails.append("N/A")
+                Lab.append("N/A")
         else:
             print("No matching div found in this panel.")
 
@@ -80,13 +103,14 @@ scrape_panel(panel_right)
 
 
 print("All Panel : ", Allnames)
-print("All links : ", Links)
+# print("All links : ", Links)
 print("All emails : ", Allmails)
+print("lab : ", Lab)
 
 sheet.clear()
 headers = ["Faculty Names", "Email", "Current Website"]
 sheet.append_row(headers)
-data = list(zip(Allnames, Allmails, Links))
+data = list(zip(Allnames, Allmails, Lab))
 sheet.append_rows(data, value_input_option='USER_ENTERED')
 
 #   FORMATING CELLS
