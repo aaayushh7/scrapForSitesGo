@@ -25,16 +25,14 @@ soup = BeautifulSoup(html.text, "html.parser")
 # print(soup) recieved html.text
 
 main_parsys = soup.find('div', class_ = "main parsys")
-# print(main_parsys)
-# imageURL=[]
+
 Allnames =[]
 Allmails=[]
-# Links=[]
 Lab=[]
 
 #   SCRAPING FUNCTION USING PREVIOUS LINES (110-193)
-
 def scrape_panel(panel):
+
     for panel_item in panel:
         div_name = panel_item.find('div', class_='text col-md-8')
         if div_name:
@@ -49,7 +47,6 @@ def scrape_panel(panel):
             inner_link = panel_item.find('a', href=True)
             if inner_link:
                 inner_url = inner_link['href']
-                # Links.append(inner_url)
 
                 try:
                     inner_response = requests.get(inner_url)
@@ -71,7 +68,7 @@ def scrape_panel(panel):
                     if internet_links:
                         for link_item in internet_links:
                             link_text = link_item.find('a').get_text(strip=True)
-                            if re.search(r'\bLab Site\b', link_text):
+                            if re.search(r'\bLab\b', link_text):
                                 lab_site_link = link_item.find('a')['href']
                                 Lab.append(lab_site_link)
                                 lab_site_found = True
@@ -84,7 +81,6 @@ def scrape_panel(panel):
                 except Exception as e:
                     print(f"Error scraping inner page: {e}")
             else:
-                # Links.append("N/A")
                 Allmails.append("N/A")
                 Lab.append("N/A")
         else:
@@ -99,11 +95,7 @@ scrape_panel(panel_left)
 scrape_panel(panel_mid)
 scrape_panel(panel_right)
 
-
-
-
 print("All Panel : ", Allnames)
-# print("All links : ", Links)
 print("All emails : ", Allmails)
 print("lab : ", Lab)
 
@@ -112,11 +104,19 @@ headers = ["Faculty Names", "Email", "Current Website"]
 sheet.append_row(headers)
 data = list(zip(Allnames, Allmails, Lab))
 sheet.append_rows(data, value_input_option='USER_ENTERED')
+cell_data = {
+    'F7': 'Color Scale',
+    'G9': 'Lab Website URL available',
+    'G10': 'Contact Info Not Available',
+    'G11': 'Email ID not Available but Conatact Info Available',
+    'G12': 'No URL Found For Profile',
+}
+for cell, value in cell_data.items():
+    sheet.update(range_name=cell, values=[[value]])
 
 #   FORMATING CELLS
 
 # cell_range = sheet.range(f'A1:C{len(Allnames) + 1}')  # Including the header row
-#
 # # Apply formatting to cells
 # for cell in cell_range:
 #     if cell.row == 1:  # Header row
@@ -129,6 +129,7 @@ sheet.append_rows(data, value_input_option='USER_ENTERED')
 # # Update the formatted cells back to the sheet
 # sheet.update_cells(cell_range)
 # Get the entire range of cells
+
 
 
                                     ## PREVIOUS ROUGH LOGIC TO GET THE WORK DONE
